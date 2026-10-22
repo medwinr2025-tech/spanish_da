@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pares: Spanish–English Memory Match</title>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#e8efe4;--panel:#fbfaf5;--ink:#12202b;--muted:#566670;--line:#c9d6c8;
+  --felt:#0f3d36;--felt2:#14504a;--gold:#f2b134;--red:#d6453d;--blue:#2b59c3;--ok:#1f8a4c;--backA:#16284a;--backB:#d6453d;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --page:#0a1613;--panel:#17251f;--ink:#f1f3ea;--muted:#9db0a6;--line:#26382f;--felt:#0b2b26;--felt2:#0f3a34;--blue:#7ea0f5;--red:#f0675f;--ok:#4ade80;}}
+:root[data-theme="dark"]{--page:#0a1613;--panel:#17251f;--ink:#f1f3ea;--muted:#9db0a6;--line:#26382f;--felt:#0b2b26;--felt2:#0f3a34;--blue:#7ea0f5;--red:#f0675f;--ok:#4ade80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:'Figtree',system-ui,sans-serif;min-height:100vh}
+.slab{font-family:'Alfa Slab One','Rockwell',Georgia,serif;font-weight:400;letter-spacing:.01em}
+main{max-width:760px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.hidden{display:none!important}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.btn{font-weight:800;border-radius:999px;padding:.7rem 1.3rem;border:2px solid var(--ink);background:transparent}
+.btn.gold{background:var(--gold);color:#12202b;border-color:#12202b;box-shadow:0 4px 0 #12202b}
+.btn.gold:active{transform:translateY(3px);box-shadow:0 1px 0 #12202b}
+.btn.sm{padding:.45rem .95rem;font-size:.85rem}
+
+/* ---------- menu ---------- */
+.hero{display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem;margin:1rem 0 2rem}
+.hero h1{font-size:clamp(3.4rem,14vw,6rem);line-height:.9;margin:0;color:var(--ink)}
+.hero p{margin:.8rem 0 0;max-width:30ch;color:var(--muted);font-size:1.05rem;line-height:1.45}
+.fan{position:relative;width:150px;height:130px}
+.fan i{position:absolute;bottom:0;left:50%;width:70px;height:98px;margin-left:-35px;border-radius:10px;border:2px solid #12202b;
+  display:flex;align-items:center;justify-content:center;font-style:normal;font-size:2rem;transform-origin:50% 120%;background:#fbfaf5;box-shadow:0 6px 14px rgba(0,0,0,.25)}
+.fan i:nth-child(1){transform:rotate(-22deg)}.fan i:nth-child(2){transform:rotate(0)}.fan i:nth-child(3){transform:rotate(22deg)}
+.fan i:nth-child(2){background:var(--backA)}
+.ladder{list-style:none;margin:0;padding:0;position:relative}
+.ladder::before{content:"";position:absolute;left:27px;top:30px;bottom:30px;border-left:3px dashed var(--line)}
+.ladder li{position:relative;margin-bottom:.9rem}
+.lvl{display:grid;grid-template-columns:56px 1fr auto;gap:.9rem;align-items:center;width:100%;text-align:left;padding:.8rem 1rem .8rem .5rem;
+  background:var(--panel);border:2px solid var(--line);border-radius:18px;transition:border-color .15s,transform .15s}
+.lvl:not([disabled]):hover{border-color:var(--ink);transform:translateX(4px)}
+.lvl[disabled]{cursor:not-allowed;opacity:.6}
+.num{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;border:3px solid var(--panel);color:#12202b}
+.lvl h3{margin:0;font-size:1.2rem}.lvl .t{color:var(--muted);font-size:.9rem}
+.lvl .e{font-size:1.25rem;letter-spacing:.15rem;margin-top:.15rem}
+.lvl .s{text-align:right;font-size:.8rem;color:var(--muted);font-weight:600;white-space:nowrap}
+.lvl .s b{display:block;font-size:1.4rem}
+.foot{text-align:center;margin-top:1.5rem;font-size:.85rem;color:var(--muted)}
+.foot button{background:none;border:0;text-decoration:underline}
+
+/* ---------- game ---------- */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:1rem}
+.title{text-align:center;flex:1}
+.title h2{margin:0;font-size:1.5rem}.title p{margin:0;color:var(--muted);font-size:.85rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:.8rem;background:var(--panel);border:2px solid var(--line);border-radius:16px}
+.stats div{text-align:center;padding:.55rem 0}.stats div+div{border-left:2px solid var(--line)}
+.stats b{display:block;font-size:1.4rem;font-variant-numeric:tabular-nums}.stats span{font-size:.75rem;color:var(--muted)}
+.table{background:radial-gradient(ellipse at 50% 0%,var(--felt2),var(--felt) 70%);border-radius:24px;padding:1.1rem;border:3px solid #12202b;box-shadow:inset 0 0 0 5px rgba(242,177,52,.25)}
+#grid{display:grid;grid-template-columns:repeat(var(--c),minmax(0,1fr));gap:.65rem;margin:0 auto;max-width:var(--maxw,520px)}
+.tray{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:2px dashed rgba(255,255,255,.2);min-height:3rem}
+.tray em{font-style:normal;color:#cfe3da;font-size:.8rem;margin-right:.3rem}
+.slot{width:34px;height:34px;border-radius:9px;border:2px dashed rgba(255,255,255,.3);display:grid;place-items:center;font-size:1.2rem}
+.slot.on{border:2px solid var(--gold);background:#fbfaf5;animation:pop .4s}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+.card{perspective:800px;aspect-ratio:3/4;padding:0;border:0;background:none}
+.inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,.1,.2,1)}
+.card.flipped .inner,.card.matched .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:2px solid #12202b;overflow:hidden}
+.back{background:
+  radial-gradient(circle at 50% 50%,var(--gold) 0 7%,transparent 8%),
+  conic-gradient(from 45deg at 50% 50%,var(--backA) 0 25%,var(--backB) 0 50%,var(--backA) 0 75%,var(--backB) 0);
+  background-size:auto,22px 22px;box-shadow:inset 0 0 0 5px #fbfaf5,inset 0 0 0 7px #12202b}
+.card:not(.matched):hover .back{filter:brightness(1.15)}
+.front{transform:rotateY(180deg);background:#fbfaf5;color:#12202b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;padding:.4rem;text-align:center}
+.badge{position:absolute;top:.3rem;left:.35rem;font-size:.6rem;font-weight:800;color:#fff;padding:.1rem .35rem;border-radius:5px}
+.es .badge{background:#d6453d}.en .badge{background:#2b59c3}
+.pic{font-size:clamp(1.6rem,8vw,2.6rem);line-height:1;margin-top:.5rem}
+.nopics .pic{display:none}
+.word{font-weight:800;font-size:clamp(.85rem,3.6vw,1.2rem);word-break:break-word;line-height:1.1}
+.card.matched .front{box-shadow:inset 0 0 0 4px var(--gold)}
+.card.matched .inner{animation:lift .5s .4s}
+@keyframes lift{50%{transform:rotateY(180deg) translateY(-8px) scale(1.06)}}
+
+/* ---------- modal ---------- */
+#modal{position:fixed;inset:0;background:rgba(6,16,13,.7);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:50}
+.sheet{background:var(--panel);border:3px solid var(--ink);border-radius:24px;padding:1.6rem;text-align:center;max-width:360px;width:100%}
+.sheet h2{font-size:2.2rem;margin:.2rem 0}
+.sheet .row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:1rem 0}
+.sheet .row div{border:2px solid var(--line);border-radius:14px;padding:.6rem}
+.sheet .row b{display:block;font-size:1.6rem}.sheet .row span{font-size:.75rem;color:var(--muted)}
+.sheet .col{display:flex;flex-direction:column;gap:.5rem}
+.confetti{position:fixed;top:-2rem;font-size:1.6rem;z-index:60;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){.inner{transition:none}.confetti{display:none}.card.matched .inner,.slot.on{animation:none}}
+@media (max-width:480px){.fan{display:none}.hero{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <section id="menu">
+    <div class="hero">
+      <div>
+        <h1 class="slab">Pares</h1>
+        <p>Match each Spanish word with its English twin. Clear a level to deal the next hand.</p>
+      </div>
+      <div class="fan" aria-hidden="true"><i>🍎</i><i>🐶</i><i>💃</i></div>
+    </div>
+    <ol id="levels" class="ladder"></ol>
+    <p class="foot"><button id="resetProg">Reset progress</button></p>
+  </section>
+
+  <section id="game" class="hidden">
+    <div class="bar">
+      <button id="quit" class="btn sm">Menu</button>
+      <div class="title"><h2 id="lvlName" class="slab"></h2><p id="lvlTopic"></p></div>
+      <button id="restart" class="btn sm">Restart</button>
+    </div>
+    <div class="stats">
+      <div><b id="moves">0</b><span>Moves</span></div>
+      <div><b id="found">0 / 0</b><span>Found</span></div>
+      <div><b id="time">0:00</b><span>Time</span></div>
+    </div>
+    <div class="table">
+      <div id="grid" aria-label="Memory cards"></div>
+      <div class="tray"><em>Collected</em><span id="slots" style="display:contents"></span>
+        <button id="picToggle" class="btn sm" style="margin-left:auto;color:#fbfaf5;border-color:#fbfaf5" aria-pressed="true">Pictures: on</button></div>
+    </div>
+  </section>
+</main>
+
+<div id="modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="vTitle">
+  <div class="sheet">
+    <div style="font-size:3rem">🏆</div>
+    <h2 id="vTitle" class="slab">¡Excelente!</h2>
+    <p id="vSub" style="margin:0;color:var(--muted)"></p>
+    <div class="row"><div><b id="vMoves"></b><span>Moves</span></div><div><b id="vTime"></b><span>Time</span></div></div>
+    <p id="vBest" style="font-size:.85rem;color:var(--muted);margin:0 0 1rem"></p>
+    <div class="col">
+      <button id="vNext" class="btn gold">Next level</button>
+      <button id="vReplay" class="btn">Play again</button>
+      <button id="vMenu" class="btn">Back to menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const gameLevels = [
+  { id:0, name:'Beginner', topic:'Colors and animals', cols:4, pairs:[
+    {spanish:'Rojo',english:'Red'},{spanish:'Azul',english:'Blue'},{spanish:'Perro',english:'Dog'},{spanish:'Gato',english:'Cat'}]},
+  { id:1, name:'Level 1', topic:'Food and family', cols:4, pairs:[
+    {spanish:'Pan',english:'Bread'},{spanish:'Leche',english:'Milk'},{spanish:'Manzana',english:'Apple'},
+    {spanish:'Madre',english:'Mother'},{spanish:'Padre',english:'Father'},{spanish:'Hermano',english:'Brother'}]},
+  { id:2, name:'Level 2', topic:'Adjectives and emotions', cols:4, pairs:[
+    {spanish:'Feliz',english:'Happy'},{spanish:'Triste',english:'Sad'},{spanish:'Grande',english:'Big'},{spanish:'Pequeño',english:'Small'},
+    {spanish:'Enojado',english:'Angry'},{spanish:'Cansado',english:'Tired'},{spanish:'Rápido',english:'Fast'},{spanish:'Lento',english:'Slow'}]},
+  { id:3, name:'Level 3', topic:'Action verbs', cols:4, pairs:[
+    {spanish:'Comer',english:'Eat'},{spanish:'Beber',english:'Drink'},{spanish:'Correr',english:'Run'},{spanish:'Dormir',english:'Sleep'},
+    {spanish:'Hablar',english:'Speak'},{spanish:'Escribir',english:'Write'},{spanish:'Leer',english:'Read'},{spanish:'Caminar',english:'Walk'},
+    {spanish:'Bailar',english:'Dance'},{spanish:'Cantar',english:'Sing'}]},
+  { id:4, name:'Level 4', topic:'Body and clothes', cols:4, pairs:[
+    {spanish:'Mano',english:'Hand'},{spanish:'Ojo',english:'Eye'},{spanish:'Boca',english:'Mouth'},{spanish:'Pie',english:'Foot'},
+    {spanish:'Oreja',english:'Ear'},{spanish:'Nariz',english:'Nose'},{spanish:'Camisa',english:'Shirt'},{spanish:'Zapato',english:'Shoe'},
+    {spanish:'Sombrero',english:'Hat'},{spanish:'Vestido',english:'Dress'},{spanish:'Gafas',english:'Glasses'},{spanish:'Calcetín',english:'Sock'}]},
+  { id:5, name:'Level 5', topic:'Nature and weather', cols:4, pairs:[
+    {spanish:'Sol',english:'Sun'},{spanish:'Luna',english:'Moon'},{spanish:'Lluvia',english:'Rain'},{spanish:'Nieve',english:'Snow'},
+    {spanish:'Viento',english:'Wind'},{spanish:'Nube',english:'Cloud'},{spanish:'Árbol',english:'Tree'},{spanish:'Flor',english:'Flower'},
+    {spanish:'Montaña',english:'Mountain'},{spanish:'Río',english:'River'},{spanish:'Mar',english:'Sea'},{spanish:'Fuego',english:'Fire'}]},
+  { id:6, name:'Level 6', topic:'Places and transport', cols:4, pairs:[
+    {spanish:'Casa',english:'House'},{spanish:'Escuela',english:'School'},{spanish:'Hospital',english:'Hospital'},{spanish:'Playa',english:'Beach'},
+    {spanish:'Tienda',english:'Shop'},{spanish:'Iglesia',english:'Church'},{spanish:'Puente',english:'Bridge'},{spanish:'Coche',english:'Car'},
+    {spanish:'Tren',english:'Train'},{spanish:'Avión',english:'Plane'},{spanish:'Barco',english:'Boat'},{spanish:'Bicicleta',english:'Bicycle'},
+    {spanish:'Autobús',english:'Bus'},{spanish:'Aeropuerto',english:'Airport'}]},
+  { id:7, name:'Level 7', topic:'Everyday life', cols:4, pairs:[
+    {spanish:'Libro',english:'Book'},{spanish:'Silla',english:'Chair'},{spanish:'Sofá',english:'Sofa'},{spanish:'Llave',english:'Key'},
+    {spanish:'Reloj',english:'Clock'},{spanish:'Teléfono',english:'Phone'},{spanish:'Ventana',english:'Window'},{spanish:'Puerta',english:'Door'},
+    {spanish:'Cama',english:'Bed'},{spanish:'Dinero',english:'Money'},{spanish:'Regalo',english:'Gift'},{spanish:'Paraguas',english:'Umbrella'},
+    {spanish:'Cámara',english:'Camera'},{spanish:'Música',english:'Music'},{spanish:'Cuchara',english:'Spoon'},{spanish:'Tijeras',english:'Scissors'}]}
+];
+const EMOJI = {Rojo:'🔴',Azul:'🔵',Perro:'🐶',Gato:'🐱',Pan:'🍞',Leche:'🥛',Manzana:'🍎',Madre:'👩',Padre:'👨',Hermano:'👦',Feliz:'😄',Triste:'😢',Grande:'🐘','Pequeño':'🐭',Enojado:'😠',Cansado:'😴','Rápido':'🐆',Lento:'🐢',Comer:'🍽️',Beber:'🥤',Correr:'🏃',Dormir:'🛌',Hablar:'🗣️',Escribir:'✍️',Leer:'📖',Caminar:'🚶',Bailar:'💃',Cantar:'🎤',Mano:'🖐️',Ojo:'👁️',Boca:'👄',Pie:'🦶',Oreja:'👂',Nariz:'👃',Camisa:'👕',Zapato:'👟',Sombrero:'👒',Vestido:'👗',Gafas:'👓','Calcetín':'🧦',Sol:'☀️',Luna:'🌙',Lluvia:'🌧️',Nieve:'❄️',Viento:'💨',Nube:'☁️','Árbol':'🌳',Flor:'🌸','Montaña':'⛰️','Río':'🏞️',Mar:'🌊',Fuego:'🔥',Casa:'🏠',Escuela:'🏫',Hospital:'🏥',Playa:'🏖️',Tienda:'🏪',Iglesia:'⛪',Puente:'🌉',Coche:'🚗',Tren:'🚆','Avión':'✈️',Barco:'⛵',Bicicleta:'🚲','Autobús':'🚌',Aeropuerto:'🛫',Libro:'📚',Silla:'🪑','Sofá':'🛋️',Llave:'🔑',Reloj:'⏰','Teléfono':'📱',Ventana:'🪟',Puerta:'🚪',Cama:'🛏️',Dinero:'💰',Regalo:'🎁',Paraguas:'☂️','Cámara':'📷','Música':'🎵',Cuchara:'🥄',Tijeras:'✂️'};
+const NUMCOL = ['#7ddc9a','#f2b134','#f08cb4','#a995f5','#6cc7f0','#f59a6c','#e6d44f','#ff7b7b'];
+
+const state = { currentLevel:0, moves:0, matches:0, flippedCards:[], isLocked:false, seconds:0, timer:null, started:false };
+let progress = { unlocked:0, best:{} };
+const $ = id => document.getElementById(id);
+const fmt = s => Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+function loadProgress(){ try{ const s=localStorage.getItem('pares-progress'); if(s) progress=Object.assign(progress,JSON.parse(s)); }catch(e){} }
+function saveProgress(){ try{ localStorage.setItem('pares-progress',JSON.stringify(progress)); }catch(e){} }
+
+function renderMenu(){
+  $('levels').innerHTML = gameLevels.map(l=>{
+    const locked=l.id>progress.unlocked, b=progress.best[l.id];
+    return `<li><button class="lvl" data-id="${l.id}" ${locked?'disabled':''}>
+      <span class="num slab" style="background:${NUMCOL[l.id]}">${locked?'🔒':l.id}</span>
+      <span><h3 class="slab">${l.name}</h3><span class="t">${l.topic}</span>
+        <div class="e" aria-hidden="true">${l.pairs.slice(0,6).map(p=>EMOJI[p.spanish]).join('')}</div></span>
+      <span class="s"><b>${l.pairs.length}</b>pairs${b?`<br>★ ${b.moves} moves`:''}</span></button></li>`;
+  }).join('');
+  document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>startLevel(+b.dataset.id));
+}
+
+function shuffleCards(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function initGame(id){
+  clearInterval(state.timer);
+  Object.assign(state,{currentLevel:id,moves:0,matches:0,flippedCards:[],isLocked:false,seconds:0,started:false});
+  const l=gameLevels[id];
+  $('lvlName').textContent=l.name; $('lvlTopic').textContent=l.topic;
+  $('moves').textContent='0'; $('time').textContent='0:00'; $('found').textContent=`0 / ${l.pairs.length}`;
+  $('slots').innerHTML=l.pairs.map((_,i)=>`<span class="slot" data-s="${i}"></span>`).join('');
+  const deck=[];
+  l.pairs.forEach((p,i)=>{ deck.push({pair:i,lang:'es',text:p.spanish}); deck.push({pair:i,lang:'en',text:p.english}); });
+  renderGrid(shuffleCards(deck),l);
+}
+
+function renderGrid(deck,l){
+  const g=$('grid');
+  g.style.setProperty('--c',l.cols); g.style.setProperty('--maxw',l.cols*118+'px');
+  g.innerHTML=deck.map(c=>`<button class="card" aria-label="Face-down card"><div class="inner">
+    <div class="face back" aria-hidden="true"></div>
+    <div class="face front ${c.lang}"><span class="badge">${c.lang==='es'?'ES':'EN'}</span>
+      <span class="pic">${EMOJI[l.pairs[c.pair].spanish]}</span><span class="word">${c.text}</span></div></div></button>`).join('');
+  g.querySelectorAll('.card').forEach((el,i)=>{ el.cardData=deck[i]; el.onclick=()=>handleCardClick(el); });
+}
+
+function startTimer(){ if(state.started) return; state.started=true; state.timer=setInterval(()=>{state.seconds++;$('time').textContent=fmt(state.seconds);},1000); }
+
+function handleCardClick(el){
+  if(state.isLocked||el.classList.contains('flipped')||el.classList.contains('matched')) return;
+  startTimer(); el.classList.add('flipped'); state.flippedCards.push(el);
+  if(state.flippedCards.length===2){ state.moves++; $('moves').textContent=state.moves; checkMatch(); }
+}
+
+function checkMatch(){
+  const [a,b]=state.flippedCards, l=gameLevels[state.currentLevel], total=l.pairs.length;
+  state.isLocked=true;
+  if(a.cardData.pair===b.cardData.pair && a.cardData.lang!==b.cardData.lang){
+    [a,b].forEach(c=>{c.classList.remove('flipped');c.classList.add('matched');});
+    const slot=document.querySelector(`.slot[data-s="${state.matches}"]`);
+    if(slot){slot.textContent=EMOJI[l.pairs[a.cardData.pair].spanish];slot.classList.add('on');}
+    state.matches++; $('found').textContent=`${state.matches} / ${total}`;
+    state.flippedCards=[]; state.isLocked=false;
+    if(state.matches===total) setTimeout(showVictoryModal,900);
+  } else {
+    setTimeout(()=>{[a,b].forEach(c=>c.classList.remove('flipped'));state.flippedCards=[];state.isLocked=false;},1000);
+  }
+}
+
+function showVictoryModal(){
+  clearInterval(state.timer);
+  const id=state.currentLevel, last=id===gameLevels.length-1;
+  if(!last && progress.unlocked<id+1) progress.unlocked=id+1;
+  const prev=progress.best[id], better=!prev||state.moves<prev.moves||(state.moves===prev.moves&&state.seconds<prev.time);
+  if(better) progress.best[id]={moves:state.moves,time:state.seconds};
+  saveProgress();
+  $('vSub').textContent=last?'You cleared every level. ¡Felicidades!':`${gameLevels[id].name} complete. ${gameLevels[id+1].name} is unlocked.`;
+  $('vMoves').textContent=state.moves; $('vTime').textContent=fmt(state.seconds);
+  $('vBest').textContent=better?'New personal best!':`Your best: ${prev.moves} moves, ${fmt(prev.time)}`;
+  $('vNext').classList.toggle('hidden',last);
+  $('modal').classList.remove('hidden'); confetti();
+}
+
+function confetti(){
+  const set=['🎉','⭐','🍎','💃','🎊','🐶','🎤'];
+  for(let i=0;i<36;i++){const s=document.createElement('span');s.className='confetti';s.textContent=set[i%set.length];
+    s.style.left=Math.random()*100+'vw';s.style.animationDuration=(2+Math.random()*2.5)+'s';s.style.animationDelay=Math.random()*.6+'s';
+    document.body.appendChild(s);setTimeout(()=>s.remove(),5500);}
+}
+
+function startLevel(id){ $('menu').classList.add('hidden'); $('game').classList.remove('hidden'); $('modal').classList.add('hidden'); initGame(id); window.scrollTo(0,0); }
+function toMenu(){ clearInterval(state.timer); $('modal').classList.add('hidden'); $('game').classList.add('hidden'); $('menu').classList.remove('hidden'); renderMenu(); }
+
+$('restart').onclick=()=>initGame(state.currentLevel);
+$('quit').onclick=toMenu; $('vMenu').onclick=toMenu;
+$('vReplay').onclick=()=>{$('modal').classList.add('hidden');initGame(state.currentLevel);};
+$('vNext').onclick=()=>startLevel(state.currentLevel+1);
+$('resetProg').onclick=()=>{progress={unlocked:0,best:{}};saveProgress();renderMenu();};
+$('picToggle').onclick=()=>{const g=$('grid'),off=g.classList.toggle('nopics');$('picToggle').textContent='Pictures: '+(off?'off':'on');$('picToggle').setAttribute('aria-pressed',String(!off));};
+loadProgress(); renderMenu();
+</script>
+</body>
+</html>
